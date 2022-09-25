@@ -1,0 +1,133 @@
+Input:
+
+1 buy Apple 10 150
+2 sell Apple 10 140
+
+Output:
+
+fifo:
+
+Apple 10 150 140 -100 long 1 2
+
+lifo:
+
+Apple 10 150 140 -100 long 1 2
+
+#######################################
+
+Input:
+
+1 sell Apple 10 150
+2 buy Apple 10 140
+
+Output:
+
+fifo:
+
+Apple 10 150 140 100 short 1 2
+
+lifo:
+
+Apple 10 150 140 100 short 1 2
+
+#######################################
+
+Input:
+
+1 buy Apple 10 150
+
+Output:
+
+fifo:
+
+Apple 10 150 - - long 1
+
+lifo:
+
+Apple 10 150 - - long 1
+
+#######################################
+
+Input:
+
+1 sell Apple 10 150
+
+Output:
+
+fifo:
+
+Apple 10 150 - - short 1
+
+lifo:
+
+Apple 10 150 - - short 1
+
+#######################################
+
+Input:
+
+1 buy Apple 10 150
+2 buy Apple 5 140
+3 sell Apple 5 145
+4 sell Apple 15 155
+5 buy Apple 15 135
+
+Output:
+
+fifo:
+
+Apple 5 150 145 -25 long 1 3
+Apple 5 150 155 25 long 1 4
+Apple 5 140 155 75 long 2 4
+Apple 5 155 135 100 short 4 5
+Apple 10 135 - - long 5
+
+lifo:
+
+Apple 5 140 145 25 long 2 3
+Apple 10 150 155 50 long 1 4
+Apple 5 155 135 100 short 4 5
+Apple 10 135 - - long 5
+
+#######################################
+
+Input:
+
+1 sell Google 5 200
+2 buy Apple 10 100
+3 sell Google 10 150
+4 buy Amazon 5 130
+5 buy Amazon 10 160
+6 sell Apple 15 140
+7 buy Apple 5 120
+8 sell Amazon 10 150
+9 buy Google 5 130
+10 sell Amazon 5 120
+11 buy Apple 5 100
+12 sell Google 5 200
+
+Output:
+
+fifo:
+
+Amazon 5 130 150 100 long 4 8
+Amazon 5 160 150 -50 long 5 8
+Amazon 5 160 120 -200 long 5 10
+Apple 10 100 140 400 long 2 6
+Apple 5 140 120 100 short 6 7
+Apple 5 100 - - long 11
+Google 5 200 130 350 short 1 9
+Google 10 150 - - short 3
+Google 5 200 - - short 12
+
+lifo:
+
+Amazon 10 160 150 -100 long 5 8
+Amazon 5 130 120 -50 long 4 10
+Apple 10 100 140 400 long 2 6
+Apple 5 140 120 100 short 6 7
+Apple 5 100 - - long 11
+Google 5 150 130 100 short 3 9
+Google 5 200 - - short 1
+Google 5 150 - - short 3
+Google 5 200 - - short 12
