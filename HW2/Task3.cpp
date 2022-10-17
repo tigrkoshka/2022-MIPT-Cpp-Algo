@@ -5,15 +5,15 @@
 
 class Solution {
 private:
-  const char open = '(';
-  const char close = ')';
+  static constexpr char open = '(';
+  static constexpr char close = ')';
 
 private:
   // Counts the n-th Catalan number
   // (see: https://en.wikipedia.org/wiki/Catalan_number)
   //
   // Takes up only O(n) operations on size_t, so this is quite fast
-  size_t countCombinations(size_t n) {
+  static size_t countCombinations(size_t n) {
     // the answer is 1 for n == 0
     // (representing only an empty string)
     size_t nComb = 1;
@@ -35,8 +35,8 @@ private:
   //         - the latter shows how many closing parenthesis are present in pref
   //
   // [NOTE]: pref does not have to be a well-formed parenthesis combination
-  void addCombinationsWithPrefix(size_t n, string &pref, size_t nOpen,
-                                 size_t nClose, vector<string> &ans) {
+  static void addCombinationsWithPrefix(size_t n, string &pref, size_t nOpen,
+                                        size_t nClose, vector<string> &ans) {
     // if the prefix has the desired length,
     // the only suitable combination is the pref itself,
     // so add it to ans and return
@@ -88,7 +88,7 @@ private:
   }
 
 public:
-  vector<string> generateParenthesis(size_t n) {
+  static vector<string> generateParenthesis(size_t n) {
     vector<string> ans;
     // memory pre-allocation,
     // allocates O(4^n/n^1.5) elements (Catalan numbers asymptotic),
