@@ -28,7 +28,7 @@ int main() {
   std::cout << concat(c, d) << std::endl;
 
   // CE: the required expression 'std::__cxx11::to_string(a)' is invalid
-  // std::cout << concat(&a, &b) << std::endl; // CE: the required expression 'std::__cxx11::to_string(a)' is invalid
+  // std::cout << concat(&a, &b) << std::endl;
 
   // CE: the expression '!(std::is_same<T, bool>::value) [with T = bool]' evaluated to 'false'
   // std::cout << concat(true, false) << std::endl;
