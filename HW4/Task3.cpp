@@ -31,38 +31,13 @@ typedef std::pair<Person, uint32_t> PersonWithAge;
 
 PersonWithAge generatePersonWithAge() {
   static const std::vector<std::string> names = {
-      "Marie",
-      "Nicole",
-      "Sam",
-      "John",
-      "Ivan",
-      "Tanya",
-      "Maxim",
-      "Anna",
-      "Michel",
-      "Kate",
-      "Thomas",
-      "Garry",
-      "Bob",
-      "Taylor",
-      "Emily",
+      "Marie", "Nicole", "Sam", "John", "Ivan", "Tanya", "Maxim", "Anna",
+      "Michel", "Kate", "Thomas", "Garry", "Bob", "Taylor", "Emily",
   };
 
   static const std::vector<std::string> surnames = {
-      "Black",
-      "Smith",
-      "Doe",
-      "Cadeau",
-      "Brown",
-      "Atkins",
-      "Campbell",
-      "Walker",
-      "Green",
-      "Wilson",
-      "Daniels",
-      "Donovan",
-      "Evans",
-      "Fisher",
+      "Black", "Smith", "Doe", "Cadeau", "Brown", "Atkins", "Campbell",
+      "Walker", "Green", "Wilson", "Daniels", "Donovan", "Evans", "Fisher",
       "Young",
   };
 
