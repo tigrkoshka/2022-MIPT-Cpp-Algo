@@ -1,0 +1,74 @@
+#!/bin/bash
+
+set -e
+
+# General reusable functions
+
+COMPILER='/usr/local/opt/gcc@12/bin/g++-12'
+
+MODULES_BUILD_FLAGS=('-std=c++20' '-fmodules-ts')
+STD_BUILD_FLAGS=('-xc++-system-header')
+LOCAL_BUILD_FLAGS=('-c' '-x' 'c++')
+
+RES_BINARY='main'
+
+BINS_DIR='awesome.cache'
+
+mkdir -p $BINS_DIR
+
+function build_std {
+  for module in "$@"
+  do
+    echo "Building $module..."
+    $COMPILER "${MODULES_BUILD_FLAGS[@]}" "${STD_BUILD_FLAGS[@]}" "$module"
+  done
+}
+
+LOCAL_COMPILED=()
+
+function build_local_modules {
+  for module in "$@"
+  do
+    echo "Building $module..."
+
+    if [ -e "$module.cppm" ]; then
+      src="$module.cppm"
+      dst="$module.pcm"
+    elif [ -e "$module.cpp" ]; then
+      src="$module.cpp"
+      dst="$module.o"
+    else
+      echo "Module not found"
+      exit 1
+    fi
+
+    $COMPILER "${MODULES_BUILD_FLAGS[@]}" "${LOCAL_BUILD_FLAGS[@]}" "$src" -o "$BINS_DIR/$dst"
+    LOCAL_COMPILED+=("$BINS_DIR/$dst")
+  done
+}
+
+function link_all {
+  $COMPILER "${LOCAL_COMPILED[@]}" -o "$BINS_DIR/$RES_BINARY"
+}
+
+function cleanup {
+  rm -r ./*.cache
+}
+
+# The main part of the script
+
+printf "BUILDING...\n\n\n"
+
+STD_MODULES=('iostream')
+LOCAL_FILES=('internal' 'a' 'b' 'unit' 'main')
+
+build_std "${STD_MODULES[@]}"
+build_local_modules "${LOCAL_FILES[@]}"
+
+link_all
+
+printf "\n\n\nBUILD SUCCESSFULL\nEXECUTING...\n\n\n"
+
+"./$BINS_DIR/$RES_BINARY"
+
+cleanup
