@@ -1,0 +1,13 @@
+graph G {
+0;
+1;
+2;
+3;
+4;
+5;
+0--1  [color=black, label=2, weight=2];
+4--5  [color=black, label=2, weight=2];
+1--4  [color=black, label=4, weight=4];
+0--2  [color=black, label=5, weight=5];
+2--3  [color=black, label=5, weight=5];
+}
