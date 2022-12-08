@@ -1,9 +1,8 @@
+#include <boost/filesystem.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/kruskal_min_spanning_tree.hpp>
-#include <boost/graph/connected_components.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -112,13 +111,6 @@ private:
         return {mst, totalWeight};
     }
 
-    static bool isConnected(const Graph &graph) {
-        std::vector<int> component (boost::num_vertices(graph));
-        size_t num_components = boost::connected_components(graph, &component[0]);
-
-        return num_components == 1;
-    }
-
     static uint64_t mstWeight(const Graph &graph) {
         auto edges = mstEdges(graph);
 
@@ -130,27 +122,15 @@ private:
         return totalWeight;
     }
 
-    static Graph withoutEdge(const Graph &graph, const Edge &edge) {
-        Graph res = graph;
-        boost::remove_edge(boost::source(edge, graph),
-                           boost::target(edge, graph),
-                           res);
-
-        return res;
-    }
-
-    static Graph withEdge(const Graph &graph, const Edge &edge) {
-        // We use a trick to enforce the Kruskal's algorithm to use
-        // the current edge: we assign it a weight of 0 so that the algorithm
-        // includes it on the first iteration, and then we add the weight
-        // of the current edge to the resulting MST's weight
-
+    static Graph alterEdgeWeight(
+            const Graph &graph, const Edge &edge, uint64_t weight
+    ) {
         uint32_t from = boost::source(edge, graph);
         uint32_t to = boost::target(edge, graph);
 
         Graph res = graph;
         boost::remove_edge(from, to, res);
-        boost::add_edge(from, to, {0}, res);
+        boost::add_edge(from, to, {weight}, res);
 
         return res;
     }
@@ -183,35 +163,64 @@ public:
 
         Graph colouredMST(boost::num_vertices(graph));
 
+        // We use a different approach from the one in the simple solution,
+        // this one is asymptotically worse, but the other one cannot be
+        // implemented by straightforward usage of boost functions
+        //
+        // We iterate through edges of the graph and check the following:
+        //
+        //   - if the graph without the current edge is not connected
+        //     or if its MST weight is bigger than that of the initial graph
+        //     the current edge is critical
+        //
+        //   - else if the weight of the MST containing the current edge
+        //     equals to the weight of the MST of the initial graph, then
+        //     the current edge is pseudo critical, because an MST not
+        //     containing the current edge exists as implied by the fact
+        //     that we didn't pass the previous check (otherwise the weight
+        //     of the MST in a graph without the current edge would have
+        //     been greater than that of the initial graph)
+        //
+        //   - else the current edge is redundant (i.e. not contained
+        //     in any MST
+
         auto iters = boost::edges(graph);
         for (auto iter = iters.first; iter != iters.second; ++iter) {
             std::string color;
 
-            // We use a different approach from the one in the simple solution,
-            // this one is asymptotically worse, but the other one cannot be
-            // implemented by straightforward usage of boost functions
+            // These are tricks for computing the MSTs described above.
             //
-            // We iterate through edges of the graph and check the following:
+            // 1. The graph without the current edge is mocked by setting
+            //    the weight of the current edge to UINT32_MAX. This makes
+            //    the current edge the last to be considered to be included
+            //    in the MST for the Kruskal's algorithm, i.e. it will only
+            //    include it if otherwise it is impossible to build an MST
+            //    (i.e. the graph without the current edge is not connected).
+            //    UINT32_MAX is chosen because it is guaranteed to be bigger
+            //    than all weights of edges in the problem, and at the same
+            //    time if it is included (i.e. if the current edge is a bridge),
+            //    the weight variable (which is uint64_t) does not overflow
+            //    causing bugs (because we also consider that not only each
+            //    weight in the problem is less than UINT32_MAX, but also
+            //    that the sum of said weights is less than that limit).
             //
-            //   - if the graph without the current edge is not connected
-            //     or if its MST weight is bigger than that of the initial graph
-            //     the current edge is critical
-            //
-            //   - else if the weight of the MST containing the current edge
-            //     equals to the weight of the MST of the initial graph, then
-            //     the current edge is pseudo critical, because an MST not
-            //     containing the current edge exists as implied by the fact
-            //     that we didn't pass the previous check (otherwise the weight
-            //     of the MST in a graph without the current edge would have
-            //     been greater than that of the initial graph)
-            //
-            //   - else the current edge is redundant (i.e. not contained
-            //     in any MST
-            Graph noEdge = withoutEdge(graph, *iter);
+            // 2. To get the weight of such a minimum spanning tree that it
+            //    contains the current edge, we assign the current edge a weight
+            //    of 0, which causes the Kruskal's algorithm to choose it
+            //    on the first iteration (because it has the least weight,
+            //    because we all the weights in the problem are greater than 0).
+            //    After getting the weight of such an MST, we then add
+            //    the weight of the current edge to it, thus getting the desired
+            //    value.
+            Graph noEdge = alterEdgeWeight(graph, *iter, UINT32_MAX);
+            Graph mustEdge = alterEdgeWeight(graph, *iter, 0);
 
-            if (!isConnected(noEdge) || mstWeight(noEdge) > baseWeight) {
+            if (mstWeight(noEdge) > baseWeight) {
+                // Critical edge
                 color = "red";
-            } else if (mstWeight(withEdge(graph, *iter)) + graph[*iter].weight == baseWeight) {
+            } else if (mstWeight(mustEdge) +
+                       graph[*iter].weight == baseWeight) {
+                // Pseudo critical edge
                 color = "blue";
             } else {
                 continue;

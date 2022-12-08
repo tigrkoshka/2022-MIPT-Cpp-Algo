@@ -7,7 +7,7 @@ graph G {
 5;
 0--1  [color=red, label=2, weight=2];
 0--2  [color=blue, label=5, weight=5];
-2--3  [color=blue, label=5, weight=5];
+2--3  [color=red, label=5, weight=5];
 1--4  [color=red, label=4, weight=4];
 2--5  [color=blue, label=5, weight=5];
 4--5  [color=red, label=2, weight=2];
