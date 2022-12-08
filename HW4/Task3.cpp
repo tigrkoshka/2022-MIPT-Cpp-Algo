@@ -67,27 +67,18 @@ int main() {
 
   ranges::generate(peopleWithAge, generatePersonWithAge); // populate vector
 
-  auto extractPerson = [](const PersonWithAge &p) { return p.first; };
-  auto extractSurname = [](const Person &p) { return p.surname; };
-  auto print = [](const auto &value) { std::cout << value << std::endl; };
-
   auto pipeline = views::all(peopleWithAge) |       // create view from vector
-                  views::transform(extractPerson) | // extract person from pairs
+                  views::keys |                     // extract person
                   views::take(nResult);             // take the first 4 people
 
-  std::vector<Person> resultingPeople(nResult);
-  myCopy(pipeline.begin(), pipeline.end(), resultingPeople.begin());
+  ranges::copy(views::all(pipeline),
+               std::ostream_iterator<Person>(std::cout, "\n"));
 
-  ranges::for_each(
-      views::all(resultingPeople), // create a view of the resulting people
-      print                        // print their full names
-  );
+  auto extractSurname = [](const Person &p) { return p.surname; };
 
-  ranges::for_each(
-      views::all(resultingPeople), // create a view of the resulting people
-      print,                       // print surnames...
-      extractSurname               // ...after extracting them from the resulting people
-  );
+  ranges::copy(views::all(pipeline) |
+               views::transform(extractSurname),
+               std::ostream_iterator<std::string>(std::cout, "\n"));
 
   return 0;
 }

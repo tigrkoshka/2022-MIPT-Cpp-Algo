@@ -67,11 +67,10 @@ int main() {
 
   ranges::generate(peopleWithAge, generatePersonWithAge); // populate people
 
-  auto extractAge = [](const PersonWithAge &p) { return p.second; };
   auto filterAge = [](uint32_t age) { return age >= minAge && age <= maxAge; };
 
   auto pipeline = views::all(peopleWithAge) |    // create view from vector
-                  views::transform(extractAge) | // extract age from pairs
+                  views::values |                // extract age from pairs
                   views::filter(filterAge);      // filter out too young and too old
 
   std::cout << static_cast<double_t>(sum(pipeline.begin(), pipeline.end())) /
